@@ -8,7 +8,7 @@ project(z
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
-option(CMAKE_EXPORT_COMPILE_COMMANDS "Turn on export of compile_commands.json." ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(PROJECT_LIST "syntax")
 

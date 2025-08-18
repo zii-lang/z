@@ -2,6 +2,8 @@
 #define Z_SYNTAX_H
 #ifdef __cplusplus
 
+#include <cstdint>
+#include <optional>
 #include <string>
 #include <unordered_map>
 
@@ -104,40 +106,63 @@ enum class TokenKind {
 };
 
 const std::unordered_map<std::string, TokenKind> Keywords = {
-	{"null", TokenKind::Null},
-	{"true", TokenKind::True},
-	{"false", TokenKind::False},
-	{"let", TokenKind::Let},
-	{"type", TokenKind::Type},
-	{"alias", TokenKind::Alias},
-	{"import", TokenKind::Import},
-	{"export", TokenKind::Export},
-	{"return", TokenKind::Return},
-	{"struct", TokenKind::Struct},
-	{"enum", TokenKind::Enum},
-	{"alloc", TokenKind::Alloc},
-	{"if", TokenKind::If},
-	{"endif", TokenKind::EndIf},
-	{"loop", TokenKind::Loop},
-	{"endloop", TokenKind::EndLoop},
-	{"lamb", TokenKind::Lamb},
-	{"func", TokenKind::Func},
-	{"vari", TokenKind::Vari},
-	{"view", TokenKind::View},
-	{"job", TokenKind::Job},
-	{"yield", TokenKind::Yield},
-	{"fiber", TokenKind::Fiber},
-	{"serial", TokenKind::Serial},
-	{"parallel", TokenKind::Parallel},
-	{"lock", TokenKind::Lock},
-	{"unlock", TokenKind::Unlock},
-	{"swap", TokenKind::Swap},
-	{"flush", TokenKind::Flush},
-	{"shared", TokenKind::Shared},
-	{"break", TokenKind::Break},
-	{"continue", TokenKind::Continue},
-	{"goto", TokenKind::Goto},
+    {"null", TokenKind::Null},
+    {"true", TokenKind::True},
+    {"false", TokenKind::False},
+    {"let", TokenKind::Let},
+    {"type", TokenKind::Type},
+    {"alias", TokenKind::Alias},
+    {"import", TokenKind::Import},
+    {"export", TokenKind::Export},
+    {"return", TokenKind::Return},
+    {"struct", TokenKind::Struct},
+    {"enum", TokenKind::Enum},
+    {"alloc", TokenKind::Alloc},
+    {"if", TokenKind::If},
+    {"endif", TokenKind::EndIf},
+    {"loop", TokenKind::Loop},
+    {"endloop", TokenKind::EndLoop},
+    {"lamb", TokenKind::Lamb},
+    {"func", TokenKind::Func},
+    {"vari", TokenKind::Vari},
+    {"view", TokenKind::View},
+    {"job", TokenKind::Job},
+    {"yield", TokenKind::Yield},
+    {"fiber", TokenKind::Fiber},
+    {"serial", TokenKind::Serial},
+    {"parallel", TokenKind::Parallel},
+    {"lock", TokenKind::Lock},
+    {"unlock", TokenKind::Unlock},
+    {"swap", TokenKind::Swap},
+    {"flush", TokenKind::Flush},
+    {"shared", TokenKind::Shared},
+    {"break", TokenKind::Break},
+    {"continue", TokenKind::Continue},
+    {"goto", TokenKind::Goto},
 };
+
+struct PosInfo {
+  uint32_t line;
+  uint32_t column;
+  uint32_t start;
+  uint32_t length;
+  std::optional<std::string_view> filepath;
+};
+
+struct Token {
+  TokenKind kind;
+  std::string_view lexeme;
+  PosInfo position;
+
+  Token(TokenKind kind, std::string &lexeme, uint32_t line, uint32_t col,
+        uint32_t start, uint32_t length, std::string &filepath)
+      : kind(kind), lexeme(lexeme), position({.line = line,
+                                              .column = col,
+                                              .start = start,
+                                              .length = length,
+                                              .filepath = filepath}) {}
+};
+
 }; // namespace Syntax
 }; // namespace Z
 
