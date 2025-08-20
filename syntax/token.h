@@ -13,6 +13,7 @@ namespace Syntax {
  * Type of token for lexical analysis.
  */
 enum class TokenKind {
+  Dummy = -2,
   Eof = -1,
   Plus = 1,
   Minus,
@@ -151,18 +152,16 @@ struct PosInfo {
 
 struct Token {
   TokenKind kind;
-  std::string_view lexeme;
   PosInfo position;
 
-  Token(TokenKind kind, std::string &lexeme, uint32_t line, uint32_t col,
-        uint32_t start, uint32_t length, std::string &filepath)
-      : kind(kind), lexeme(lexeme), position({.line = line,
-                                              .column = col,
-                                              .start = start,
-                                              .length = length,
-                                              .filepath = filepath}) {}
+  Token(TokenKind kind, uint32_t line, uint32_t col, uint32_t start,
+        uint32_t length, const std::string filepath)
+      : kind(kind), position({.line = line,
+                              .column = col,
+                              .start = start,
+                              .length = length,
+                              .filepath = filepath}) {}
 };
-
 }; // namespace Syntax
 }; // namespace Z
 
