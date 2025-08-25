@@ -1,6 +1,7 @@
 #ifndef Z_LEXER_H
 #define Z_LEXER_H
 
+#include <string_view>
 #ifdef __cplusplus
 #include "token.h"
 #include <cstdint>
@@ -14,6 +15,7 @@ namespace Z {
 namespace Syntax {
 
 enum class LexError {
+	NoError = 0,
   InvalidCharacter,
   UnterminatedString,
   UnclosedComment,
@@ -386,6 +388,7 @@ public:
   virtual uint32_t get_pos() = 0;
   virtual void set_pos(uint32_t pos) = 0;
   virtual const std::string get_path() = 0;
+	virtual const std::string slice(uint32_t start, uint32_t length) = 0;
 
   uint32_t get_column() { return this->col; }
 
@@ -423,6 +426,7 @@ public:
   uint32_t get_pos() override;
   void set_pos(uint32_t) override;
   const std::string get_path() override;
+	const std::string slice(uint32_t start, uint32_t length) override;
 };
 
 /**
@@ -442,18 +446,21 @@ public:
   uint32_t get_pos() override;
   void set_pos(uint32_t pos) override;
   const std::string get_path() override;
+	const std::string slice(uint32_t start, uint32_t length) override;
 };
 
 class Lexer {
 private:
   InputSource &source;
   uint32_t token_count = 0;
+	LexError error_code = LexError::NoError;
 
   uint32_t start = 0;
   uint32_t line = 0;
   uint32_t col = 1;
 
   void skip_trivia();
+	uint32_t string_literal(uint32_t start);
 
 public:
   static std::vector<Token> getAll(InputSource &);

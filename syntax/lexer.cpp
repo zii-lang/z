@@ -2,8 +2,12 @@
 
 #include "lexer.h"
 #include "token.h"
+#include <algorithm>
 #include <cstdio>
+#include <fstream>
 #include <iostream>
+#include <stdexcept>
+#include <string>
 
 namespace Z {
 namespace Syntax {
@@ -31,6 +35,11 @@ bool StringSource::eof() { return index >= data.size(); }
 uint32_t StringSource::get_pos() { return index; }
 void StringSource::set_pos(uint32_t pos) { index = pos; }
 const std::string StringSource::get_path() { return this->path; }
+const std::string StringSource::slice(uint32_t start, uint32_t length) {
+  if (start >= data.size())
+    return {};
+  return data.substr(start, std::min<uint32_t>(length, data.size() - start));
+}
 
 /**
  * ------------------------------------------
@@ -79,6 +88,19 @@ void FileSource::set_pos(uint32_t pos) { in.seekg(pos, std::ios::beg); }
 
 const std::string FileSource::get_path() { return this->path; }
 
+const std::string FileSource::slice(uint32_t start, uint32_t length) {
+  in.seekg(0, std::ios::end);
+  size_t file_size = in.tellg();
+  if (start >= file_size)
+    return {};
+
+  in.seekg(start, std::ios::beg);
+  std::string buffer(std::min<uint32_t>(length, file_size - start), '\0');
+  in.read(buffer.data(), buffer.size());
+  buffer.resize(in.gcount());
+  return buffer;
+}
+
 Lexer::~Lexer() {}
 
 #define TOKEN(kind)                                                            \
@@ -125,8 +147,29 @@ Token Lexer::get() {
     return TOKEN(Asterisk);
   case '/':
     return TOKEN(Slash);
+  case '%':
+    return TOKEN(Percent);
+  case '&':
+    return TOKEN(Amp);
+  case '|':
+    return TOKEN(Pipe);
+  case '=':
+    return TOKEN(Equal);
+  case '!':
+    return TOKEN(Exclam);
+  case '<':
+    return TOKEN(Lesser);
+  case '>':
+    return TOKEN(Greater);
   case '\0':
     return TOKEN(Eof);
+  case '"':
+  case '\'':
+  case '`': {
+    length = string_literal(ch);
+    return Token(TokenKind::String, this->line, this->col, start, length,
+                 source.get_path());
+  }
   default:
     return TOKEN(Dummy);
   }
@@ -163,6 +206,22 @@ void Lexer::skip_trivia() {
       break;
     }
   }
+}
+
+uint32_t Lexer::string_literal(uint32_t start) {
+  uint32_t length = 1;
+  while (!eof()) {
+    if (source.peek() == '\\') {
+      source.get();
+      source.get();
+      length += 2;
+    } else if (source.get() == start) {
+      length += 1;
+      break;
+    }
+    length += 1;
+  }
+  return length;
 }
 
 bool Lexer::eof() { return source.eof(); }
