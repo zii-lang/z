@@ -1,18 +1,24 @@
+#ifdef __cplusplus
+
 #include "lexer.h"
 #include "token.h"
 #include <cstdio>
+#include <iostream>
 
 namespace Z {
 namespace Syntax {
+
 /**
  * ------------------------------------------
  * StringSource Code
  * ------------------------------------------
  */
-// StringSource::StringSource(const std::string &str, const std::string path)
-//     : data(str), path(path) {}
 uint32_t StringSource::peek() {
   return index < data.size() ? data[index] : '\0';
+}
+
+uint32_t StringSource::peek(uint32_t n) {
+  return (index + n) < data.size() ? data[index + n] : '\0';
 }
 
 uint32_t StringSource::get() {
@@ -45,6 +51,17 @@ uint32_t FileSource::peek() {
   return eof() ? '\0' : static_cast<uint32_t>(in.peek());
 }
 
+uint32_t FileSource::peek(uint32_t n) {
+  if ((static_cast<uint32_t>(in.tellg()) + 0) < file_size) {
+    in.seekg(n, std::ios::cur);
+    const uint32_t ch = in.peek();
+    in.seekg(-static_cast<int32_t>(n), std::ios::cur);
+    return ch;
+  } else {
+    return '\0';
+  }
+}
+
 uint32_t FileSource::get() {
   this->inc_column();
   return eof() ? '\0' : static_cast<uint32_t>(in.get());
@@ -54,9 +71,11 @@ bool FileSource::eof() { return in.peek() == EOF; }
 
 uint32_t FileSource::get_pos() {
   auto pos = in.tellg();
-  return (pos == -1) ? static_cast<size_t>(file_size)
-                     : static_cast<size_t>(pos);
+  return (pos == -1) ? static_cast<uint32_t>(file_size)
+                     : static_cast<uint32_t>(pos);
 }
+
+void FileSource::set_pos(uint32_t pos) { in.seekg(pos, std::ios::beg); }
 
 const std::string FileSource::get_path() { return this->path; }
 
@@ -67,6 +86,8 @@ Lexer::~Lexer() {}
         length, source.get_path())
 
 Token Lexer::get() {
+  this->skip_trivia();
+
   this->start = source.get_pos();
   uint32_t ch = source.get();
   uint32_t length = 1;
@@ -102,7 +123,8 @@ Token Lexer::get() {
     return TOKEN(Minus);
   case '*':
     return TOKEN(Asterisk);
-
+  case '/':
+    return TOKEN(Slash);
   case '\0':
     return TOKEN(Eof);
   default:
@@ -110,7 +132,43 @@ Token Lexer::get() {
   }
 }
 
+void Lexer::skip_trivia() {
+  uint32_t current = 0;
+  while (!source.eof()) {
+    current = source.peek();
+    if (LexerUtil::is_whitespace(current) || LexerUtil::is_linefeed(current)) {
+      source.get();
+      continue;
+    } else if (current == '/') {
+      current = source.peek(1);
+      if (current == '/') {
+        source.get();
+        source.get();
+        while (!source.eof() && !LexerUtil::is_linefeed(source.get())) {
+        }
+        continue;
+      } else if (current == '*') {
+        source.get();
+        while (!source.eof()) {
+          if (source.peek() == '*' && source.peek(1) == '/') {
+            source.get();
+            source.get();
+            break;
+          }
+          source.get();
+        }
+        continue;
+      }
+    } else {
+      break;
+    }
+  }
+}
+
+bool Lexer::eof() { return source.eof(); }
+
 #undef TOKEN
 
 } // namespace Syntax
 } // namespace Z
+#endif // __cplusplus
