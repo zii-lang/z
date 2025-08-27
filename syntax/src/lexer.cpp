@@ -1,105 +1,10 @@
-#ifdef __cplusplus
-
-#include "lexer.h"
-#include "token.h"
-#include <algorithm>
-#include <cstdio>
-#include <fstream>
-#include <iostream>
-#include <stdexcept>
-#include <string>
+#include <Z/Syntax/Lexer>
+#include <Z/Syntax/LexerUtil>
+#include <Z/Syntax/StringSource>
+#include <Z/Syntax/Token>
 
 namespace Z {
 namespace Syntax {
-
-/**
- * ------------------------------------------
- * StringSource Code
- * ------------------------------------------
- */
-uint32_t StringSource::peek() {
-  return index < data.size() ? data[index] : '\0';
-}
-
-uint32_t StringSource::peek(uint32_t n) {
-  return (index + n) < data.size() ? data[index + n] : '\0';
-}
-
-uint32_t StringSource::get() {
-  this->inc_column();
-  return index < data.size() ? data[index++] : '\0';
-}
-
-bool StringSource::eof() { return index >= data.size(); }
-
-uint32_t StringSource::get_pos() { return index; }
-void StringSource::set_pos(uint32_t pos) { index = pos; }
-const std::string StringSource::get_path() { return this->path; }
-const std::string StringSource::slice(uint32_t start, uint32_t length) {
-  if (start >= data.size())
-    return {};
-  return data.substr(start, std::min<uint32_t>(length, data.size() - start));
-}
-
-/**
- * ------------------------------------------
- *  FileSource
- * ------------------------------------------
- */
-FileSource::FileSource(const std::string &filepath)
-    : in(filepath, std::ios::binary), path(filepath) {
-  if (!in.is_open()) {
-    throw std::runtime_error("Cannot open file: " + filepath);
-  }
-  in.seekg(0, std::ios::end);
-  file_size = in.tellg();
-  in.seekg(0, std::ios::beg);
-}
-
-uint32_t FileSource::peek() {
-  return eof() ? '\0' : static_cast<uint32_t>(in.peek());
-}
-
-uint32_t FileSource::peek(uint32_t n) {
-  if ((static_cast<uint32_t>(in.tellg()) + 0) < file_size) {
-    in.seekg(n, std::ios::cur);
-    const uint32_t ch = in.peek();
-    in.seekg(-static_cast<int32_t>(n), std::ios::cur);
-    return ch;
-  } else {
-    return '\0';
-  }
-}
-
-uint32_t FileSource::get() {
-  this->inc_column();
-  return eof() ? '\0' : static_cast<uint32_t>(in.get());
-}
-
-bool FileSource::eof() { return in.peek() == EOF; }
-
-uint32_t FileSource::get_pos() {
-  auto pos = in.tellg();
-  return (pos == -1) ? static_cast<uint32_t>(file_size)
-                     : static_cast<uint32_t>(pos);
-}
-
-void FileSource::set_pos(uint32_t pos) { in.seekg(pos, std::ios::beg); }
-
-const std::string FileSource::get_path() { return this->path; }
-
-const std::string FileSource::slice(uint32_t start, uint32_t length) {
-  in.seekg(0, std::ios::end);
-  size_t file_size = in.tellg();
-  if (start >= file_size)
-    return {};
-
-  in.seekg(start, std::ios::beg);
-  std::string buffer(std::min<uint32_t>(length, file_size - start), '\0');
-  in.read(buffer.data(), buffer.size());
-  buffer.resize(in.gcount());
-  return buffer;
-}
 
 Lexer::~Lexer() {}
 
@@ -170,8 +75,11 @@ Token Lexer::get() {
     return Token(TokenKind::String, this->line, this->col, start, length,
                  source.get_path());
   }
-  default:
+  default: {
+    if (LexerUtil::is_unicode_char(ch)) {
+    }
     return TOKEN(Dummy);
+  }
   }
 }
 
@@ -224,10 +132,62 @@ uint32_t Lexer::string_literal(uint32_t start) {
   return length;
 }
 
+uint32_t Lexer::identifier(uint32_t start) {
+  uint32_t length = 0;
+  while (!eof()) {
+    if (LexerUtil::is_unicode_char(start)) {
+      length += 1;
+      while (!eof()) {
+      }
+    } else if (start == '$' && source.peek(1) == '$') {
+
+    } else {
+      return 0;
+    }
+  }
+  return length;
+}
+
+/** TODO: move to utf8 headers. */
+const uint32_t Lexer::utf8_read() {
+  uint8_t num_bytes = 1;
+  uint32_t code_point = source.peek();
+
+  if ((code_point & 0b10000000) == 0b00000000) {
+    num_bytes = 1;
+  } else if ((code_point & 0b11100000) == 0b11000000) {
+    num_bytes = 2;
+    code_point &= 0b00011111;
+  } else if ((code_point & 0b11110000) == 0b11100000) {
+    num_bytes = 3;
+    code_point &= 0b00001111;
+  } else if ((code_point & 0b11111000) == 0b11110000) {
+    num_bytes = 4;
+    code_point &= 0b00000111;
+  } else {
+    num_bytes = 0;
+  }
+
+  for (int i = 1; i < num_bytes; ++i) {
+    int next = source.peek(i);
+    if (next == 0) {
+      // TODO: Error EOF while matching utf8.
+      return 0;
+    }
+    uint8_t c = static_cast<uint8_t>(next);
+    if ((c & 0b11000000) != 0b10000000) {
+      // TODO: Error Invalid utf8 code point.
+      return 0;
+    }
+    code_point = (code_point << 6) | (c & 0b00111111);
+  }
+
+  return code_point;
+}
+
 bool Lexer::eof() { return source.eof(); }
 
 #undef TOKEN
 
 } // namespace Syntax
 } // namespace Z
-#endif // __cplusplus

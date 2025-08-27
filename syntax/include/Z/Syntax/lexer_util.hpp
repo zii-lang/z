@@ -1,28 +1,10 @@
-#ifndef Z_LEXER_H
-#define Z_LEXER_H
+#ifndef Z_SYNTAX_LEXER_UTIL_HPP
+#define Z_SYNTAX_LEXER_UTIL_HPP
 
-#include <string_view>
-#ifdef __cplusplus
-#include "token.h"
 #include <cstdint>
-#include <cstdio>
-#include <fstream>
-#include <iosfwd>
-#include <string>
-#include <vector>
 
 namespace Z {
 namespace Syntax {
-
-enum class LexError {
-	NoError = 0,
-  InvalidCharacter,
-  UnterminatedString,
-  UnclosedComment,
-  UnclosedCode,
-  InvalidEscape,
-};
-
 /**
  * Helper tool for lexer to detect kind of code point.
  */
@@ -360,120 +342,6 @@ public:
            (0xff3f == code_point) || (0xff65 == code_point);
   }
 };
-
-/**
- * Interface class for reading a buffer, lexer accept classes that implement
- * this class.
- */
-class InputSource {
-private:
-  uint32_t line = 1;
-  uint32_t col = 0;
-
-public:
-  virtual ~InputSource() = default;
-
-  // peek next char (but don’t advance)
-  virtual uint32_t peek() = 0;
-
-  // peek next n characters (won't advance)
-  virtual uint32_t peek(uint32_t n) = 0;
-
-  // get next char (advances position)
-  virtual uint32_t get() = 0;
-
-  // check if at end
-  virtual bool eof() = 0;
-
-  virtual uint32_t get_pos() = 0;
-  virtual void set_pos(uint32_t pos) = 0;
-  virtual const std::string get_path() = 0;
-	virtual const std::string slice(uint32_t start, uint32_t length) = 0;
-
-  uint32_t get_column() { return this->col; }
-
-  void inc_column() {
-    if (LexerUtil::is_linefeed(this->peek())) {
-      inc_line();
-    } else {
-      this->col++;
-    }
-  }
-
-  uint32_t get_line() { return this->line; };
-
-  void inc_line() {
-    this->line++;
-    this->col = 0;
-  }
-};
-
-/**
- * Buffer of string as source.
- */
-class StringSource : public InputSource {
-  const std::string data;
-  const std::string path;
-  size_t index = 0;
-
-public:
-  StringSource(const std::string str, const std::string path)
-      : data(std::move(str)), path(std::move(path)) {}
-  uint32_t peek() override;
-  uint32_t peek(uint32_t pos) override;
-  uint32_t get() override;
-  bool eof() override;
-  uint32_t get_pos() override;
-  void set_pos(uint32_t) override;
-  const std::string get_path() override;
-	const std::string slice(uint32_t start, uint32_t length) override;
-};
-
-/**
- * Buffer of file as source.
- */
-class FileSource : public InputSource {
-  std::ifstream in;
-  std::streampos file_size{0};
-  const std::string path;
-
-public:
-  FileSource(const std::string &filepath);
-  uint32_t peek() override;
-  uint32_t peek(uint32_t pos) override;
-  uint32_t get() override;
-  bool eof() override;
-  uint32_t get_pos() override;
-  void set_pos(uint32_t pos) override;
-  const std::string get_path() override;
-	const std::string slice(uint32_t start, uint32_t length) override;
-};
-
-class Lexer {
-private:
-  InputSource &source;
-  uint32_t token_count = 0;
-	LexError error_code = LexError::NoError;
-
-  uint32_t start = 0;
-  uint32_t line = 0;
-  uint32_t col = 1;
-
-  void skip_trivia();
-	uint32_t string_literal(uint32_t start);
-
-public:
-  static std::vector<Token> getAll(InputSource &);
-  explicit Lexer(InputSource &source) : source(source) {};
-  ~Lexer();
-  Token peek();
-  Token get();
-  void advance();
-  bool eof();
-};
-
-} // namespace Syntax
-} // namespace Z
-
-#endif // __cplusplus
-#endif // Z_LEXER_H
+}; // namespace Syntax
+}; // namespace Z
+#endif // Z_SYNTAX_LEXER_UTIL_HPP

@@ -1,6 +1,5 @@
-#ifndef Z_SYNTAX_H
-#define Z_SYNTAX_H
-#ifdef __cplusplus
+#ifndef Z_SYNTAX_TOKEN_HPP
+#define Z_SYNTAX_TOKEN_HPP
 
 #include <cstdint>
 #include <optional>
@@ -165,5 +164,4 @@ struct Token {
 }; // namespace Syntax
 }; // namespace Z
 
-#endif // __cplusplus
-#endif // Z_SYNTAX_H
+#endif // Z_SYNTAX_TOKEN_HPP
