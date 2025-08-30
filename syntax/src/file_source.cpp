@@ -1,4 +1,7 @@
+#include "lexer_util.hpp"
+
 #include <Z/Syntax/FileSource>
+#include <iostream>
 
 namespace Z {
 namespace Syntax {
@@ -10,6 +13,7 @@ FileSource::FileSource(const std::string &filepath)
   }
   in.seekg(0, std::ios::end);
   file_size = in.tellg();
+	in.clear();
   in.seekg(0, std::ios::beg);
 }
 
@@ -21,6 +25,7 @@ uint32_t FileSource::peek(uint32_t n) {
   if ((static_cast<uint32_t>(in.tellg()) + 0) < file_size) {
     in.seekg(n, std::ios::cur);
     const uint32_t ch = in.peek();
+		in.clear();
     in.seekg(-static_cast<int32_t>(n), std::ios::cur);
     return ch;
   } else {
@@ -43,18 +48,36 @@ uint32_t FileSource::get_pos() {
 
 void FileSource::set_pos(uint32_t pos) { in.seekg(pos, std::ios::beg); }
 
+uint32_t FileSource::get_column() { return this->col; }
+
+void FileSource::inc_column() {
+  if (LexerUtil::is_linefeed(this->peek())) {
+    inc_line();
+  } else {
+    this->col++;
+  }
+}
+
+uint32_t FileSource::get_line() { return this->line; }
+
+void FileSource::inc_line() {
+  this->line += 1;
+  this->col = 0;
+}
+
 const std::string FileSource::get_path() { return this->path; }
 
 const std::string FileSource::slice(uint32_t start, uint32_t length) {
-  in.seekg(0, std::ios::end);
-  size_t file_size = in.tellg();
   if (start >= file_size)
     return {};
 
+	in.clear();
+	size_t cur_pos = in.tellg();
+
+  std::string buffer(length, '\0');
   in.seekg(start, std::ios::beg);
-  std::string buffer(std::min<uint32_t>(length, file_size - start), '\0');
-  in.read(buffer.data(), buffer.size());
-  buffer.resize(in.gcount());
+	in.read(buffer.data(), length);
+	in.seekg(cur_pos, std::ios::beg);
   return buffer;
 }
 

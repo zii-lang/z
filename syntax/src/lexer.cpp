@@ -1,7 +1,11 @@
+#include "lexer_util.hpp"
+#include "utf8_util.hpp"
+
 #include <Z/Syntax/Lexer>
-#include <Z/Syntax/LexerUtil>
 #include <Z/Syntax/StringSource>
 #include <Z/Syntax/Token>
+#include <Z/Syntax/UTF8Code>
+#include <iostream>
 
 namespace Z {
 namespace Syntax {
@@ -9,13 +13,13 @@ namespace Syntax {
 Lexer::~Lexer() {}
 
 #define TOKEN(kind)                                                            \
-  Token(TokenKind::kind, source.get_line(), source.get_column(), start,        \
+  Token(TokenKind::kind, source.get_line(), source.get_column(), index,        \
         length, source.get_path())
 
 Token Lexer::get() {
   this->skip_trivia();
 
-  this->start = source.get_pos();
+  this->index = source.get_pos();
   uint32_t ch = source.get();
   uint32_t length = 1;
 
@@ -72,13 +76,20 @@ Token Lexer::get() {
   case '\'':
   case '`': {
     length = string_literal(ch);
-    return Token(TokenKind::String, this->line, this->col, start, length,
-                 source.get_path());
+    return Token(TokenKind::String, source.get_line(), source.get_column(),
+                 index, length, source.get_path());
   }
   default: {
     if (LexerUtil::is_unicode_char(ch)) {
+			uint32_t code_length = 0;
+			do {
+				code_length = Lexer::identifier(ch);
+				std::cout << +code_length << std::endl;
+				length += code_length;
+			} while(code_length > 1);
+			length -= 1;
     }
-    return TOKEN(Dummy);
+    return TOKEN(Identifier);
   }
   }
 }
@@ -134,55 +145,12 @@ uint32_t Lexer::string_literal(uint32_t start) {
 
 uint32_t Lexer::identifier(uint32_t start) {
   uint32_t length = 0;
-  while (!eof()) {
-    if (LexerUtil::is_unicode_char(start)) {
-      length += 1;
-      while (!eof()) {
-      }
-    } else if (start == '$' && source.peek(1) == '$') {
-
-    } else {
-      return 0;
-    }
+  UTF8Code code = UTF8Util::utf8_read(source, start);
+  length += code.size;
+  for (uint32_t i = 0; i < code.size; i++) {
+    source.get();
   }
   return length;
-}
-
-/** TODO: move to utf8 headers. */
-const uint32_t Lexer::utf8_read() {
-  uint8_t num_bytes = 1;
-  uint32_t code_point = source.peek();
-
-  if ((code_point & 0b10000000) == 0b00000000) {
-    num_bytes = 1;
-  } else if ((code_point & 0b11100000) == 0b11000000) {
-    num_bytes = 2;
-    code_point &= 0b00011111;
-  } else if ((code_point & 0b11110000) == 0b11100000) {
-    num_bytes = 3;
-    code_point &= 0b00001111;
-  } else if ((code_point & 0b11111000) == 0b11110000) {
-    num_bytes = 4;
-    code_point &= 0b00000111;
-  } else {
-    num_bytes = 0;
-  }
-
-  for (int i = 1; i < num_bytes; ++i) {
-    int next = source.peek(i);
-    if (next == 0) {
-      // TODO: Error EOF while matching utf8.
-      return 0;
-    }
-    uint8_t c = static_cast<uint8_t>(next);
-    if ((c & 0b11000000) != 0b10000000) {
-      // TODO: Error Invalid utf8 code point.
-      return 0;
-    }
-    code_point = (code_point << 6) | (c & 0b00111111);
-  }
-
-  return code_point;
 }
 
 bool Lexer::eof() { return source.eof(); }

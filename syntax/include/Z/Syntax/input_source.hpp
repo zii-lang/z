@@ -4,8 +4,6 @@
 #include <cstdint>
 #include <string>
 
-#include "LexerUtil"
-
 namespace Z {
 namespace Syntax {
 
@@ -14,10 +12,6 @@ namespace Syntax {
  * this class.
  */
 class InputSource {
-private:
-  uint32_t line = 1;
-  uint32_t col = 0;
-
 public:
   virtual ~InputSource() = default;
 
@@ -35,25 +29,13 @@ public:
 
   virtual uint32_t get_pos() = 0;
   virtual void set_pos(uint32_t pos) = 0;
+  virtual uint32_t get_column() = 0;
+  virtual void inc_column() = 0;
+  virtual uint32_t get_line() = 0;
+  virtual void inc_line() = 0;
+
   virtual const std::string get_path() = 0;
   virtual const std::string slice(uint32_t start, uint32_t length) = 0;
-
-  uint32_t get_column() { return this->col; }
-
-  void inc_column() {
-    if (LexerUtil::is_linefeed(this->peek())) {
-      inc_line();
-    } else {
-      this->col++;
-    }
-  }
-
-  uint32_t get_line() { return this->line; };
-
-  void inc_line() {
-    this->line++;
-    this->col = 0;
-  }
 };
 
 }; // namespace Syntax
