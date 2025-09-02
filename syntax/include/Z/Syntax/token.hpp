@@ -143,7 +143,6 @@ const std::unordered_map<std::string, TokenKind> Keywords = {
 
 struct PosInfo {
   uint32_t line;
-  uint32_t column;
   uint32_t start;
   uint32_t length;
   std::optional<std::string_view> filepath;
@@ -153,10 +152,9 @@ struct Token {
   TokenKind kind;
   PosInfo position;
 
-  Token(TokenKind kind, uint32_t line, uint32_t col, uint32_t start,
-        uint32_t length, const std::string filepath)
+  Token(TokenKind kind, uint32_t line, uint32_t start, uint32_t length,
+        const std::string filepath)
       : kind(kind), position({.line = line,
-                              .column = col,
                               .start = start,
                               .length = length,
                               .filepath = filepath}) {}

@@ -1,3 +1,4 @@
+#include "Z/Syntax/token.hpp"
 #include "lexer_util.hpp"
 #include "utf8_util.hpp"
 
@@ -5,6 +6,8 @@
 #include <Z/Syntax/StringSource>
 #include <Z/Syntax/Token>
 #include <Z/Syntax/UTF8Code>
+
+#include <unordered_map>
 #include <iostream>
 
 namespace Z {
@@ -86,10 +89,15 @@ Token Lexer::get() {
 				code_length = Lexer::identifier(ch);
 				std::cout << +code_length << std::endl;
 				length += code_length;
-			} while(code_length > 1);
-			length -= 1;
+				ch = source.peek();
+			} while(code_length >= 1 && LexerUtil::is_unicode_char(ch));
+			const std::string tempLiteral = source.slice(index, length);
+			if(auto search = Keywords.find(tempLiteral); search != Keywords.end()) {
+				return Token(search->second, source.get_line(), source.get_column(), index, length, source.get_path());
+			}
+    	return TOKEN(Identifier);
     }
-    return TOKEN(Identifier);
+		return TOKEN(Dummy);
   }
   }
 }
