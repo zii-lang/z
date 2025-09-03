@@ -29,8 +29,7 @@ public:
 
   virtual uint32_t get_pos() = 0;
   virtual void set_pos(uint32_t pos) = 0;
-  virtual uint32_t get_column() = 0;
-  virtual void inc_column() = 0;
+  virtual void inc_pos() = 0;
   virtual uint32_t get_line() = 0;
   virtual void inc_line() = 0;
 

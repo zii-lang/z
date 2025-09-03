@@ -1,4 +1,3 @@
-#include "Z/Syntax/token.hpp"
 #include "lexer_util.hpp"
 #include "utf8_util.hpp"
 
@@ -8,7 +7,6 @@
 #include <Z/Syntax/UTF8Code>
 
 #include <unordered_map>
-#include <iostream>
 
 namespace Z {
 namespace Syntax {
@@ -16,13 +14,14 @@ namespace Syntax {
 Lexer::~Lexer() {}
 
 #define TOKEN(kind)                                                            \
-  Token(TokenKind::kind, source.get_line(), source.get_column(), index,        \
-        length, source.get_path())
+  Token(TokenKind::kind, this->sline, source.get_line(), start,                \
+        this->start + length, length, source.get_path())
 
 Token Lexer::get() {
   this->skip_trivia();
 
-  this->index = source.get_pos();
+  this->start = source.get_pos();
+  this->sline = source.get_line();
   uint32_t ch = source.get();
   uint32_t length = 1;
 
@@ -79,25 +78,28 @@ Token Lexer::get() {
   case '\'':
   case '`': {
     length = string_literal(ch);
-    return Token(TokenKind::String, source.get_line(), source.get_column(),
-                 index, length, source.get_path());
+    return Token(TokenKind::String, this->sline, source.get_line(), this->start,
+                 this->start + length, length, source.get_path());
   }
   default: {
     if (LexerUtil::is_unicode_char(ch)) {
-			uint32_t code_length = 0;
-			do {
-				code_length = Lexer::identifier(ch);
-				std::cout << +code_length << std::endl;
-				length += code_length;
-				ch = source.peek();
-			} while(code_length >= 1 && LexerUtil::is_unicode_char(ch));
-			const std::string tempLiteral = source.slice(index, length);
-			if(auto search = Keywords.find(tempLiteral); search != Keywords.end()) {
-				return Token(search->second, source.get_line(), source.get_column(), index, length, source.get_path());
-			}
-    	return TOKEN(Identifier);
+      uint32_t code_length = 0;
+      do {
+        code_length = Lexer::identifier(ch);
+        length += code_length;
+        ch = source.peek();
+      } while (code_length >= 1 && (LexerUtil::is_unicode_char(ch) ||
+                                    LexerUtil::is_unicode_digit(ch) ||
+                                    LexerUtil::is_unicode_punc(ch)));
+      const std::string tempLiteral = source.slice(this->start, length);
+      if (auto search = Keywords.find(tempLiteral); search != Keywords.end()) {
+        return Token(search->second, this->sline, source.get_line(),
+                     this->start, this->start + length, length,
+                     source.get_path());
+      }
+      return TOKEN(Identifier);
     }
-		return TOKEN(Dummy);
+    return TOKEN(Dummy);
   }
   }
 }

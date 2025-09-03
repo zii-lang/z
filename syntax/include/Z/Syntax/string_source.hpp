@@ -28,8 +28,7 @@ public:
 
   uint32_t get_pos() override;
   void set_pos(uint32_t) override;
-  uint32_t get_column() override;
-  void inc_column() override;
+  void inc_pos() override;
   uint32_t get_line() override;
   void inc_line() override;
 

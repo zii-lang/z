@@ -14,7 +14,7 @@ uint32_t StringSource::peek(uint32_t n) {
 }
 
 uint32_t StringSource::get() {
-  this->inc_column();
+  this->inc_pos();
   return index < data.size() ? data[index++] : '\0';
 }
 
@@ -24,9 +24,7 @@ uint32_t StringSource::get_pos() { return index; }
 
 void StringSource::set_pos(uint32_t pos) { index = pos; }
 
-uint32_t StringSource::get_column() { return this->col; }
-
-void StringSource::inc_column() {
+void StringSource::inc_pos() {
   if (LexerUtil::is_linefeed(this->peek())) {
     inc_line();
   } else {

@@ -25,7 +25,8 @@ private:
   uint32_t token_count = 0;
   LexError error_code = LexError::NoError;
 
-  uint32_t index = 0;
+  uint32_t start = 0;
+	uint32_t sline = 0;
 
   void skip_trivia();
   uint32_t string_literal(uint32_t start);

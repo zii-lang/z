@@ -5,7 +5,6 @@
 #include <Z/Syntax/UTF8Code>
 
 #include <cstdint>
-#include <iostream>
 
 namespace Z {
 namespace Syntax {
