@@ -2,6 +2,7 @@
 #define Z_SYNTAX_LEXER_HPP
 
 #include "Z/Syntax/input_source.hpp"
+#include "Z/Syntax/utf8code.hpp"
 #include <cstdint>
 
 #include <Z/Syntax/InputSource>
@@ -29,8 +30,8 @@ private:
 	uint32_t sline = 0;
 
   void skip_trivia();
-  uint32_t string_literal(uint32_t start);
-  uint32_t identifier(uint32_t start);
+  void string_literal(uint32_t start);
+  UTF8Code identifier(uint32_t start);
 
 public:
   explicit Lexer(InputSource &source) : source(source) {};

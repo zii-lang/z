@@ -15,7 +15,7 @@ class FileSource : public InputSource {
   std::streampos file_size{0};
   const std::string path;
   uint32_t line = 1;
-  uint32_t col = 0;
+	uint32_t length = 0;
 
 public:
   FileSource(const std::string &filepath);
@@ -31,6 +31,8 @@ public:
   void inc_pos() override;
   uint32_t get_line() override;
   void inc_line() override;
+	uint32_t get_length() override;
+	void clear() override;
 
   const std::string get_path() override;
   const std::string slice(uint32_t start, uint32_t length) override;

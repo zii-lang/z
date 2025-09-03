@@ -32,6 +32,9 @@ public:
   virtual void inc_pos() = 0;
   virtual uint32_t get_line() = 0;
   virtual void inc_line() = 0;
+	virtual uint32_t get_length() = 0;
+
+	virtual void clear() = 0;
 
   virtual const std::string get_path() = 0;
   virtual const std::string slice(uint32_t start, uint32_t length) = 0;

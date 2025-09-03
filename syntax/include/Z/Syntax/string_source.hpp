@@ -14,7 +14,7 @@ class StringSource : public InputSource {
   const std::string path;
   size_t index = 0;
   uint32_t line = 1;
-  uint32_t col = 0;
+  uint32_t length = 0;
 
 public:
   StringSource(const std::string str, const std::string path)
@@ -31,6 +31,8 @@ public:
   void inc_pos() override;
   uint32_t get_line() override;
   void inc_line() override;
+  uint32_t get_length() override;
+  void clear() override;
 
   const std::string get_path() override;
   const std::string slice(uint32_t start, uint32_t length) override;

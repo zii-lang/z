@@ -25,19 +25,18 @@ uint32_t StringSource::get_pos() { return index; }
 void StringSource::set_pos(uint32_t pos) { index = pos; }
 
 void StringSource::inc_pos() {
+	this->length += 1;
   if (LexerUtil::is_linefeed(this->peek())) {
     inc_line();
-  } else {
-    this->col++;
   }
 }
 
 uint32_t StringSource::get_line() { return this->line; }
 
-void StringSource::inc_line() {
-  this->line += 1;
-  this->col = 0;
-}
+void StringSource::inc_line() { this->line += 1; }
+
+uint32_t StringSource::get_length() { return this->length; }
+void StringSource::clear() { this->length = 0; }
 
 const std::string StringSource::get_path() { return this->path; }
 const std::string StringSource::slice(uint32_t start, uint32_t length) {

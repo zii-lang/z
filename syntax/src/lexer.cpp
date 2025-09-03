@@ -6,6 +6,7 @@
 #include <Z/Syntax/Token>
 #include <Z/Syntax/UTF8Code>
 
+#include <iostream>
 #include <unordered_map>
 
 namespace Z {
@@ -15,15 +16,15 @@ Lexer::~Lexer() {}
 
 #define TOKEN(kind)                                                            \
   Token(TokenKind::kind, this->sline, source.get_line(), start,                \
-        this->start + length, length, source.get_path())
+        this->start + source.get_length(), source.get_length(),                \
+        source.get_path())
 
 Token Lexer::get() {
+  source.clear();
   this->skip_trivia();
-
   this->start = source.get_pos();
   this->sline = source.get_line();
   uint32_t ch = source.get();
-  uint32_t length = 1;
 
   switch (ch) {
   case '(':
@@ -43,6 +44,10 @@ Token Lexer::get() {
   case ',':
     return TOKEN(Comma);
   case ':':
+    if (source.peek() == '=') {
+      source.get();
+      return TOKEN(ColonEqual);
+    }
     return TOKEN(Colon);
   case ';':
     return TOKEN(Semicolon);
@@ -77,27 +82,37 @@ Token Lexer::get() {
   case '"':
   case '\'':
   case '`': {
-    length = string_literal(ch);
+    string_literal(ch);
     return Token(TokenKind::String, this->sline, source.get_line(), this->start,
-                 this->start + length, length, source.get_path());
+                 this->start + source.get_length(), source.get_length(),
+                 source.get_path());
   }
   default: {
+		// TODO: make this work!
     if (LexerUtil::is_unicode_char(ch)) {
-      uint32_t code_length = 0;
-      do {
-        code_length = Lexer::identifier(ch);
-        length += code_length;
-        ch = source.peek();
-      } while (code_length >= 1 && (LexerUtil::is_unicode_char(ch) ||
-                                    LexerUtil::is_unicode_digit(ch) ||
-                                    LexerUtil::is_unicode_punc(ch)));
-      const std::string tempLiteral = source.slice(this->start, length);
+      uint32_t size = Lexer::identifier(ch).size;
+			for(uint32_t i = 1; i < size; i++) {
+				source.get();
+			}
+      ch = source.peek();
+      while ((LexerUtil::is_unicode_char(ch) ||
+                LexerUtil::is_unicode_digit(ch) ||
+                LexerUtil::is_unicode_punc(ch))) {
+				size = Lexer::identifier(ch).size;
+				for(uint32_t i = 0; i < size; i++) {
+					source.get();
+				}
+				ch = source.get();
+      }
+      const std::string tempLiteral =
+          source.slice(this->start, source.get_length());
       if (auto search = Keywords.find(tempLiteral); search != Keywords.end()) {
         return Token(search->second, this->sline, source.get_line(),
-                     this->start, this->start + length, length,
-                     source.get_path());
+                     this->start, this->start + source.get_length(),
+                     source.get_length(), source.get_path());
       }
-      return TOKEN(Identifier);
+      Token token = TOKEN(Identifier);
+      return token;
     }
     return TOKEN(Dummy);
   }
@@ -137,30 +152,19 @@ void Lexer::skip_trivia() {
   }
 }
 
-uint32_t Lexer::string_literal(uint32_t start) {
-  uint32_t length = 1;
+void Lexer::string_literal(uint32_t start) {
   while (!eof()) {
     if (source.peek() == '\\') {
       source.get();
       source.get();
-      length += 2;
     } else if (source.get() == start) {
-      length += 1;
       break;
     }
-    length += 1;
   }
-  return length;
 }
 
-uint32_t Lexer::identifier(uint32_t start) {
-  uint32_t length = 0;
-  UTF8Code code = UTF8Util::utf8_read(source, start);
-  length += code.size;
-  for (uint32_t i = 0; i < code.size; i++) {
-    source.get();
-  }
-  return length;
+UTF8Code Lexer::identifier(uint32_t start) {
+  return UTF8Util::utf8_read(source, start);
 }
 
 bool Lexer::eof() { return source.eof(); }

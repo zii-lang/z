@@ -1,3 +1,4 @@
+#include "Z/Syntax/file_source.hpp"
 #include "lexer_util.hpp"
 
 #include <Z/Syntax/FileSource>
@@ -49,19 +50,18 @@ uint32_t FileSource::get_pos() {
 void FileSource::set_pos(uint32_t pos) { in.seekg(pos, std::ios::beg); }
 
 void FileSource::inc_pos() {
+  this->length += 1;
   if (LexerUtil::is_linefeed(this->peek())) {
     inc_line();
-  } else {
-    this->col++;
   }
 }
 
 uint32_t FileSource::get_line() { return this->line; }
 
-void FileSource::inc_line() {
-  this->line += 1;
-  this->col = 0;
-}
+void FileSource::inc_line() { this->line += 1; }
+
+uint32_t FileSource::get_length() { return this->length; }
+void FileSource::clear() { this->length = 0; }
 
 const std::string FileSource::get_path() { return this->path; }
 
