@@ -1,3 +1,4 @@
+#include "Z/Syntax/Token.hpp"
 #include "lexer_util.hpp"
 #include "utf8_util.hpp"
 
@@ -77,6 +78,18 @@ Token Lexer::get() {
     return TOKEN(Lesser);
   case '>':
     return TOKEN(Greater);
+	case '$':
+		if( source.peek() == '$') {
+			uint32_t ch2 = source.peek(1);
+			if( ch2 == '"' || ch2 == '\'' || ch2 == '`') {
+				source.get();
+				source.get();
+				string_literal(ch2);
+				return Token(TokenKind::Identifier, this->sline, source.get_line(), this->start,
+						this->start + source.get_length() - 1, source.get_length() - 1,
+						source.get_path());
+			}
+		}
   case '\0':
     return TOKEN(Eof);
   case '"':
@@ -88,21 +101,19 @@ Token Lexer::get() {
                  source.get_path());
   }
   default: {
-		// TODO: make this work!
     if (LexerUtil::is_unicode_char(ch)) {
       uint32_t size = Lexer::identifier(ch).size;
-			for(uint32_t i = 1; i < size; i++) {
-				source.get();
-			}
-      ch = source.peek();
+      for (uint32_t i = 1; i < size; i++) {
+        ch = source.get();
+      }
+			std::cout << +ch << std::endl;
       while ((LexerUtil::is_unicode_char(ch) ||
-                LexerUtil::is_unicode_digit(ch) ||
-                LexerUtil::is_unicode_punc(ch))) {
-				size = Lexer::identifier(ch).size;
-				for(uint32_t i = 0; i < size; i++) {
-					source.get();
-				}
-				ch = source.get();
+              LexerUtil::is_unicode_digit(ch) ||
+              LexerUtil::is_unicode_punc(ch))) {
+        size = Lexer::identifier(ch).size;
+        for (uint32_t i = 0; i < size; i++) {
+          ch = source.get();
+        }
       }
       const std::string tempLiteral =
           source.slice(this->start, source.get_length());
@@ -111,8 +122,9 @@ Token Lexer::get() {
                      this->start, this->start + source.get_length(),
                      source.get_length(), source.get_path());
       }
-      Token token = TOKEN(Identifier);
-      return token;
+      return Token(TokenKind::Identifier, this->sline, source.get_line(),
+                   this->start, this->start + source.get_length(),
+                   source.get_length(), source.get_path());
     }
     return TOKEN(Dummy);
   }

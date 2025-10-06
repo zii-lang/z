@@ -5,9 +5,10 @@ project(
 
 # Get header files as build dependencies.
 file(GLOB_RECURSE ZSYNTAX_HEADERS
-     "${CMAKE_CURRENT_SOURCE_DIR}/include/Z/Syntax/*.hpp")
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/Z/Syntax/*")
 # All sources inside src directory.
-file(GLOB_RECURSE ZSYNTAX_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE ZSYNTAX_SOURCES src/file_source.cpp
+)# "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 # Source header directory.
 set(ZSYNTAX_HEADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/Z/Syntax")
@@ -37,3 +38,7 @@ install(
 
 # Install the public headers
 install(DIRECTORY include DESTINATION include)
+
+if(ENABLE_TESTS)
+  add_subdirectory(tests)
+endif()

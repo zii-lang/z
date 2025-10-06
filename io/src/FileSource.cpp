@@ -1,10 +1,10 @@
 #include <fstream>
 #include <iostream>
 
-#include <Z/Syntax/FileSource>
+#include <Z/IO.hpp>
 
 namespace Z {
-namespace Syntax {
+namespace IO {
 
 FileSource::FileSource(const std::string &filepath)
     : _in(filepath, std::ios::binary) {
@@ -49,5 +49,5 @@ size_t FileSource::pos() const {
 
 bool FileSource::eof() { return _in.eof(); }
 
-}; // namespace Syntax
+}; // namespace IO
 }; // namespace Z
