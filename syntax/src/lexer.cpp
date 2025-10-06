@@ -1,3 +1,4 @@
+/*
 #include "Z/Syntax/Token.hpp"
 #include "lexer_util.hpp"
 #include "utf8_util.hpp"
@@ -78,18 +79,18 @@ Token Lexer::get() {
     return TOKEN(Lesser);
   case '>':
     return TOKEN(Greater);
-	case '$':
-		if( source.peek() == '$') {
-			uint32_t ch2 = source.peek(1);
-			if( ch2 == '"' || ch2 == '\'' || ch2 == '`') {
-				source.get();
-				source.get();
-				string_literal(ch2);
-				return Token(TokenKind::Identifier, this->sline, source.get_line(), this->start,
-						this->start + source.get_length() - 1, source.get_length() - 1,
-						source.get_path());
-			}
-		}
+        case '$':
+                if( source.peek() == '$') {
+                        uint32_t ch2 = source.peek(1);
+                        if( ch2 == '"' || ch2 == '\'' || ch2 == '`') {
+                                source.get();
+                                source.get();
+                                string_literal(ch2);
+                                return Token(TokenKind::Identifier, this->sline,
+source.get_line(), this->start, this->start + source.get_length() - 1,
+source.get_length() - 1, source.get_path());
+                        }
+                }
   case '\0':
     return TOKEN(Eof);
   case '"':
@@ -106,7 +107,7 @@ Token Lexer::get() {
       for (uint32_t i = 1; i < size; i++) {
         ch = source.get();
       }
-			std::cout << +ch << std::endl;
+                        std::cout << +ch << std::endl;
       while ((LexerUtil::is_unicode_char(ch) ||
               LexerUtil::is_unicode_digit(ch) ||
               LexerUtil::is_unicode_punc(ch))) {
@@ -185,3 +186,4 @@ bool Lexer::eof() { return source.eof(); }
 
 } // namespace Syntax
 } // namespace Z
+*/

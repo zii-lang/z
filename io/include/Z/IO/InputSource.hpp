@@ -3,7 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <string_view>
+#include <string>
 
 namespace Z {
 namespace IO {
@@ -20,12 +20,18 @@ public:
   virtual bool eof() = 0;
 };
 
+enum class SeekKind {
+  Start,
+  Current,
+  End,
+};
+
 class SeekableInputSource : public InputSource {
 public:
   virtual size_t pos() const = 0;
-  virtual void seek(size_t pos) = 0;
+  virtual void seek(size_t pos, SeekKind kind) = 0;
   virtual uint32_t size() const = 0;
-  virtual std::string_view slice(size_t start, size_t length) const = 0;
+  virtual std::string slice(size_t start, size_t length) const = 0;
   // Clear any kind of flags set on file.
   virtual void clear() const = 0;
 };

@@ -1,8 +1,9 @@
 #ifndef Z_SYNTAX_UTF8_UTIL_HPP
 #define Z_SYNTAX_UTF8_UTIL_HPP
 
-#include <Z/Syntax/InputSource>
+/*
 #include <Z/Syntax/UTF8Code>
+#include <Z/IO.hpp>
 
 #include <cstdint>
 
@@ -33,7 +34,7 @@ public:
     }
 
     for (uint32_t i = 1; i < cp.size; i++) {
-      uint32_t next = source.peek(i-1);
+      uint32_t next = source.peek(i - 1);
       if (next == 0) {
         // TODO: Error EOF while matching utf8.
         cp.size = 0;
@@ -53,5 +54,5 @@ public:
 };
 } // namespace Syntax
 } // namespace Z
-
+*/
 #endif

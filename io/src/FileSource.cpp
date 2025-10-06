@@ -1,4 +1,5 @@
 #include <fstream>
+#include <ios>
 #include <iostream>
 
 #include <Z/IO.hpp>
@@ -40,6 +41,8 @@ uint32_t FileSource::get() {
   return ch;
 }
 
+bool FileSource::eof() { return _in.eof(); }
+
 size_t FileSource::pos() const {
   const size_t p = this->_in.tellg();
   if (p == std::streampos(-1))
@@ -47,7 +50,33 @@ size_t FileSource::pos() const {
   return static_cast<size_t>(p);
 }
 
-bool FileSource::eof() { return _in.eof(); }
+void FileSource::seek(size_t pos, SeekKind kind) {
+  switch (kind) {
+  case SeekKind::Start:
+    this->_in.seekg(pos, std::ios::beg);
+    break;
+  case SeekKind::Current:
+    this->_in.seekg(pos, std::ios::cur);
+    break;
+  case SeekKind::End:
+    this->_in.seekg(pos, std::ios::end);
+    break;
+  }
+}
+
+uint32_t FileSource::size() const { return this->_size; }
+
+std::string FileSource::slice(size_t start, size_t length) const {
+  this->clear();
+  this->_in.seekg(static_cast<std::streamoff>(start), std::ios::beg);
+
+  std::string result(length, '\0');
+  this->_in.read(result.data(), static_cast<std::streamsize>(length));
+  result.resize(static_cast<size_t>(_in.gcount()));
+  return result;
+}
+
+void FileSource::clear() const { this->_in.clear(); }
 
 }; // namespace IO
 }; // namespace Z

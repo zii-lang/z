@@ -28,9 +28,10 @@ public:
 
   // --- SeekableInputSource Methods ---
   size_t pos() const override;
-  void seek(size_t pos) override;
+  void seek(size_t pos, SeekKind kind) override;
   uint32_t size() const override;
-  std::string_view slice(size_t start, size_t length) const override;
+  std::string slice(size_t start, size_t length) const override;
+  void clear() const override;
 };
 
 }; // namespace IO
