@@ -20,6 +20,9 @@ FileSource::FileSource(const std::string &filepath)
 
 uint32_t FileSource::peek(uint32_t n) {
   if (n == 0) {
+    if (this->eof()) {
+      return '\0';
+    }
     return this->_in.peek();
   }
   if ((static_cast<uint32_t>(this->_in.tellg()) + n) < this->_size) {
@@ -41,7 +44,7 @@ uint32_t FileSource::get() {
   return ch;
 }
 
-bool FileSource::eof() { return _in.eof(); }
+bool FileSource::eof() const { return pos() >= _size; }
 
 size_t FileSource::pos() const {
   const size_t p = this->_in.tellg();

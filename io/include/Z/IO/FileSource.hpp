@@ -24,7 +24,7 @@ public:
   /* advances and return the character at current position. */
   uint32_t get() override;
   /* indicates end of file. */
-  bool eof() override;
+  bool eof() const override;
 
   // --- SeekableInputSource Methods ---
   size_t pos() const override;

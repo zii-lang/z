@@ -17,7 +17,7 @@ public:
   virtual ~InputSource() = default;
   virtual uint32_t peek(uint32_t n = 0) = 0;
   virtual uint32_t get() = 0;
-  virtual bool eof() = 0;
+  virtual bool eof() const = 0;
 };
 
 enum class SeekKind {
