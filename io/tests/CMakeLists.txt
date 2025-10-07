@@ -8,11 +8,8 @@ if(UNIT_TEST_SOURCES)
   target_link_libraries(io_unit_tests PRIVATE ZIO GTest::gtest
                                               GTest::gtest_main)
 
-  # Register each unit test with CTest
-  foreach(test_file ${UNIT_TEST_SOURCES})
-    get_filename_component(test_name ${test_file} NAME_WE)
-    add_test(NAME ${test_name} COMMAND io_unit_tests)
-  endforeach()
+	add_test(NAME io_unit_tests COMMAND io_unit_tests)
+	gtest_discover_tests(io_unit_tests)
 endif()
 
 # -----------------------

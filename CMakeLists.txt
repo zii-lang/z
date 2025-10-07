@@ -14,7 +14,6 @@ option(ENABLE_TESTS "Enable tests for modules" OFF)
 if(ENABLE_TESTS)
   # Try to find system-installed GTest first
   find_package(GTest QUIET)
-  message(${GTest_FOUND})
 
   if(NOT GTest_FOUND)
     message(STATUS "System GTest not found, falling back to FetchContent")
@@ -26,6 +25,7 @@ if(ENABLE_TESTS)
     )
     FetchContent_MakeAvailable(googletest)
   endif()
+	include(GoogleTest)
   enable_testing()
 endif()
 

@@ -3,6 +3,7 @@
 
 #include <Z/IO/BufferSource.hpp>
 #include <Z/IO/FileSource.hpp>
+#include <Z/IO/ForwardFileSource.hpp>
 #include <Z/IO/InputSource.hpp>
 
 #endif
