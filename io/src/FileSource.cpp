@@ -25,7 +25,7 @@ size_t FileSource::pos() const {
   return static_cast<size_t>(this->_in.tellg());
 }
 
-uint8_t FileSource::get() const { return eof() ? '\0' : this->_in.get(); }
+uint8_t FileSource::get() { return eof() ? '\0' : this->_in.get(); }
 
 bool FileSource::eof() const {
   this->_in.peek();

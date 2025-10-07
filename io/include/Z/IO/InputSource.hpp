@@ -3,7 +3,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <string>
 
 namespace Z {
 namespace IO {
@@ -16,7 +15,7 @@ class InputSource {
 public:
   virtual ~InputSource() = default;
   virtual size_t pos() const = 0;
-  virtual uint8_t get() const = 0;
+  virtual uint8_t get() = 0;
   virtual bool eof() const = 0;
 };
 
@@ -24,6 +23,7 @@ public:
  * Forward only, Lookahead source stream.
  */
 class LookaheadInputSource : public InputSource {
+public:
   // Deconstructor.
   virtual ~LookaheadInputSource() = default;
   // peeks character at next nth position.

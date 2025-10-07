@@ -16,10 +16,10 @@ class FileSource : public SeekableInputSource {
   size_t _size;
 
 public:
-  FileSource(const std::string &filepath);
-  
+  FileSource(const std::string &);
+
   size_t pos() const override;
-  uint8_t get() const override;
+  uint8_t get() override;
   bool eof() const override;
 
   uint8_t peek(size_t = 0) override;
