@@ -56,19 +56,9 @@ TEST_F(FileSourceTest, PeekAndGet) {
 TEST_F(FileSourceTest, SeekAndPos) {
   FileSource fs(testFileName);
 
-  fs.seek(9, SeekKind::Start); // move to 9th byte
+  fs.seekTo(9); // move to 9th byte
   EXPECT_EQ(fs.pos(), 9);
   EXPECT_EQ(fs.get(), '\n'); // should read newline at pos 9
-}
-
-TEST_F(FileSourceTest, Slice) {
-  FileSource fs(testFileName);
-
-  std::string s = fs.slice(0, 5); // first 5 bytes
-  EXPECT_EQ(s, "Hello");
-
-  s = fs.slice(9, 7); // from newline to end
-  EXPECT_EQ(s, "\nLine2");
 }
 
 TEST_F(FileSourceTest, EofBehavior) {

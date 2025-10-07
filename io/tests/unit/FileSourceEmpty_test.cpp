@@ -36,7 +36,4 @@ TEST_F(FileSourceEmptyTest, EmptyFileEOF) {
 
   // peek() should return 0
   EXPECT_EQ(fs.peek(), '\0');
-
-  // slice should return empty string
-  EXPECT_EQ(fs.slice(0, 10), "");
 }

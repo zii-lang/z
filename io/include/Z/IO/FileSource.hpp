@@ -17,21 +17,15 @@ class FileSource : public SeekableInputSource {
 
 public:
   FileSource(const std::string &filepath);
-
-  // --- InputSource Methods ---
-  /* peeks next `n`th character and returns it. */
-  uint32_t peek(uint32_t n = 0) override;
-  /* advances and return the character at current position. */
-  uint32_t get() override;
-  /* indicates end of file. */
+  
+  size_t pos() const override;
+  uint8_t get() const override;
   bool eof() const override;
 
-  // --- SeekableInputSource Methods ---
-  size_t pos() const override;
-  void seek(size_t pos, SeekKind kind) override;
+  uint8_t peek(size_t = 0) override;
+  void seek(size_t) const override;
+  void seekTo(size_t) const override;
   uint32_t size() const override;
-  std::string slice(size_t start, size_t length) const override;
-  void clear() const override;
 };
 
 }; // namespace IO

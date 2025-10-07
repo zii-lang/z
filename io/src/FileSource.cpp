@@ -18,68 +18,56 @@ FileSource::FileSource(const std::string &filepath)
   this->_in.seekg(0, std::ios::beg);
 }
 
-uint32_t FileSource::peek(uint32_t n) {
-  if (n == 0) {
-    if (this->eof()) {
+size_t FileSource::pos() const {
+  if (this->eof()) {
+    return this->_size;
+  }
+  return static_cast<size_t>(this->_in.tellg());
+}
+
+uint8_t FileSource::get() const { return eof() ? '\0' : this->_in.get(); }
+
+bool FileSource::eof() const {
+  this->_in.peek();
+  return this->_in.eof();
+}
+
+uint8_t FileSource::peek(size_t offset) {
+  if (offset == 0) {
+    if (eof()) {
       return '\0';
     }
     return this->_in.peek();
   }
-  if ((static_cast<uint32_t>(this->_in.tellg()) + n) < this->_size) {
-    this->_in.seekg(n, std::ios::cur);
-    const uint32_t ch = this->_in.peek();
-    this->clear();
-    this->_in.seekg(-static_cast<int32_t>(n), std::ios::cur);
+
+  if ((static_cast<size_t>(this->_in.tellg()) + offset) < this->_size) {
+    this->_in.seekg(offset, std::ios::cur);
+    const uint8_t ch = this->_in.peek();
+    this->_in.clear();
+    this->_in.seekg(-offset, std::ios::cur);
     return ch;
   } else {
     return '\0';
   }
 }
 
-uint32_t FileSource::get() {
+void FileSource::seek(size_t offset) const {
+  this->_in.seekg(offset, std::ios::cur);
+  if (offset < 0 && eof()) {
+    this->_in.clear();
+  }
+  this->_in.peek(); // to set eof flag again.
+}
+
+void FileSource::seekTo(size_t offset) const {
   if (eof()) {
-    return '\0';
+    this->_in.clear();
   }
-  uint32_t ch = static_cast<uint32_t>(this->_in.get());
-  return ch;
-}
-
-bool FileSource::eof() const { return pos() >= _size; }
-
-size_t FileSource::pos() const {
-  const size_t p = this->_in.tellg();
-  if (p == std::streampos(-1))
-    return 0;
-  return static_cast<size_t>(p);
-}
-
-void FileSource::seek(size_t pos, SeekKind kind) {
-  switch (kind) {
-  case SeekKind::Start:
-    this->_in.seekg(pos, std::ios::beg);
-    break;
-  case SeekKind::Current:
-    this->_in.seekg(pos, std::ios::cur);
-    break;
-  case SeekKind::End:
-    this->_in.seekg(pos, std::ios::end);
-    break;
-  }
+  this->_in.seekg(offset, std::ios::beg);
+  this->_in.peek(); // to set eof flag again.
 }
 
 uint32_t FileSource::size() const { return this->_size; }
-
-std::string FileSource::slice(size_t start, size_t length) const {
-  this->clear();
-  this->_in.seekg(static_cast<std::streamoff>(start), std::ios::beg);
-
-  std::string result(length, '\0');
-  this->_in.read(result.data(), static_cast<std::streamsize>(length));
-  result.resize(static_cast<size_t>(_in.gcount()));
-  return result;
-}
-
-void FileSource::clear() const { this->_in.clear(); }
 
 }; // namespace IO
 }; // namespace Z

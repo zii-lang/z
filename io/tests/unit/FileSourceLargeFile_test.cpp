@@ -36,21 +36,6 @@ TEST_F(FileSourceLargeFileTest, SizeAndSequentialRead) {
   EXPECT_TRUE(fs.eof());
 }
 
-TEST_F(FileSourceLargeFileTest, SliceFromMiddle) {
-  FileSource fs(testFileName);
-  const size_t start = 1000;
-  const size_t len = 50;
-  std::string slice = fs.slice(start, len);
-
-  EXPECT_EQ(slice.size(), len);
-
-  // Verify predictable pattern
-  for (size_t i = 0; i < len; ++i) {
-    char expected = static_cast<char>('A' + ((start + i) % 26));
-    EXPECT_EQ(slice[i], expected);
-  }
-}
-
 TEST_F(FileSourceLargeFileTest, PeekDoesNotAdvancePosition) {
   FileSource fs(testFileName);
 
@@ -67,7 +52,7 @@ TEST_F(FileSourceLargeFileTest, GetLastCharacterAndCheckEOF) {
   FileSource fs(testFileName);
 
   // Seek to one byte before end
-  fs.seek(fileSize - 1, SeekKind::Start);
+  fs.seekTo(fileSize - 1);
 
   EXPECT_FALSE(fs.eof());
 

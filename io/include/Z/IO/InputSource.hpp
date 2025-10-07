@@ -15,25 +15,33 @@ namespace IO {
 class InputSource {
 public:
   virtual ~InputSource() = default;
-  virtual uint32_t peek(uint32_t n = 0) = 0;
-  virtual uint32_t get() = 0;
+  virtual size_t pos() const = 0;
+  virtual uint8_t get() const = 0;
   virtual bool eof() const = 0;
 };
 
-enum class SeekKind {
-  Start,
-  Current,
-  End,
+/**
+ * Forward only, Lookahead source stream.
+ */
+class LookaheadInputSource : public InputSource {
+  // Deconstructor.
+  virtual ~LookaheadInputSource() = default;
+  // peeks character at next nth position.
+  virtual uint8_t peek(uint32_t = 0) = 0;
 };
 
 class SeekableInputSource : public InputSource {
 public:
-  virtual size_t pos() const = 0;
-  virtual void seek(size_t pos, SeekKind kind) = 0;
+  // Deconstructor.
+  virtual ~SeekableInputSource() = default;
+
+  // Peek forward or backwards.
+  virtual uint8_t peek(size_t = 0) = 0;
+  // Seeks to exact position given.
+  virtual void seek(size_t) const = 0;
+  // Seeks from current position to offset.
+  virtual void seekTo(size_t) const = 0;
   virtual uint32_t size() const = 0;
-  virtual std::string slice(size_t start, size_t length) const = 0;
-  // Clear any kind of flags set on file.
-  virtual void clear() const = 0;
 };
 
 }; // namespace IO
