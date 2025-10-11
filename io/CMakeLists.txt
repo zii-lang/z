@@ -5,9 +5,9 @@ project(
 
 # Get header files as build dependencies.
 file(GLOB_RECURSE ZIO_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/Z/IO.hpp"
-     "${CMAKE_CURRENT_SOURCE_DIR}/include/Z/IO/*.hpp")
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/Z/IO/**.hpp")
 # All sources inside src directory.
-file(GLOB_RECURSE ZIO_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE ZIO_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/**.cpp")
 
 # Source header directory.
 set(ZIO_HEADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/Z/IO")

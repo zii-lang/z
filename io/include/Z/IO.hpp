@@ -1,9 +1,14 @@
 #ifndef Z_IO_HPP
 #define Z_IO_HPP
 
-#include <Z/IO/BufferSource.hpp>
-#include <Z/IO/FileSource.hpp>
-#include <Z/IO/ForwardFileSource.hpp>
-#include <Z/IO/InputSource.hpp>
+// Base Interface
+#include <Z/IO/InputReader.hpp>
+
+#include <Z/IO/RandomAccessReader.hpp>
+#include <Z/IO/StreamReader.hpp>
+
+#include <Z/IO/RandomAccess/MemoryReader.hpp>
+
+#include <Z/IO/Stream/StreamFileReader.hpp>
 
 #endif
