@@ -29,7 +29,7 @@ if(ENABLE_TESTS)
   enable_testing()
 endif()
 
-set(PROJECT_LIST "io")
+set(PROJECT_LIST "io" "syntax")
 
 foreach(project ${PROJECT_LIST})
   add_subdirectory(${project})

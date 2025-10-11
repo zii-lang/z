@@ -5,10 +5,11 @@ project(
 
 # Get header files as build dependencies.
 file(GLOB_RECURSE ZSYNTAX_HEADERS
-     "${CMAKE_CURRENT_SOURCE_DIR}/include/Z/Syntax/*")
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/Z/Syntax.hpp"
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/Z/Syntax/**.hpp")
+
 # All sources inside src directory.
-file(GLOB_RECURSE ZSYNTAX_SOURCES src/file_source.cpp
-)# "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE ZSYNTAX_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/Lexer.cpp")
 
 # Source header directory.
 set(ZSYNTAX_HEADERS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/Z/Syntax")
@@ -27,6 +28,9 @@ add_dependencies(ZSyntax copy_syntax_headers)
 target_include_directories(
   ZSyntax PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                  $<INSTALL_INTERFACE:include>)
+target_link_libraries(
+	ZSyntax PUBLIC ZIO
+)
 
 # Install the library
 install(

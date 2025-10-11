@@ -1,6 +1,13 @@
-add_executable(test_ZSyntax test1.cpp)
+# -----------------------
+# Unit Tests
+# -----------------------
+file(GLOB UNIT_TEST_SOURCES "unit/*.cpp")
 
-target_link_libraries(test_ZSyntax PRIVATE ZSyntax GTest::gtest
-                                           GTest::gtest_main)
+if(UNIT_TEST_SOURCES)
+  add_executable(syntax_unit_tests ${UNIT_TEST_SOURCES})
+  target_link_libraries(syntax_unit_tests PRIVATE ZIO ZSyntax GTest::gtest
+                                              GTest::gtest_main)
 
-add_test(NAME SyntaxTests COMMAND test_ZSyntax)
+  add_test(NAME syntax_unit_tests COMMAND syntax_unit_tests)
+  gtest_discover_tests(syntax_unit_tests)
+endif()

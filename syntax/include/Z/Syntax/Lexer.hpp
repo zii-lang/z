@@ -1,12 +1,10 @@
 #ifndef Z_SYNTAX_LEXER_HPP
 #define Z_SYNTAX_LEXER_HPP
 
-#include "Z/Syntax/input_source.hpp"
-#include "Z/Syntax/utf8code.hpp"
 #include <cstdint>
 
-#include <Z/Syntax/InputSource>
-#include <Z/Syntax/Token>
+#include <Z/IO.hpp>
+#include <Z/Syntax/Token.hpp>
 
 namespace Z {
 namespace Syntax {
@@ -22,19 +20,19 @@ enum class LexError {
 
 class Lexer {
 private:
-  InputSource &source;
+  IO::InputReader &reader;
   uint32_t token_count = 0;
   LexError error_code = LexError::NoError;
 
-  uint32_t start = 0;
-	uint32_t sline = 0;
+  std::size_t start = 0;
+  std::size_t sline = 0;
 
   void skip_trivia();
   void string_literal(uint32_t start);
-  UTF8Code identifier(uint32_t start);
+  void identifier(uint32_t start);
 
 public:
-  explicit Lexer(InputSource &source) : source(source) {};
+  explicit Lexer(IO::InputReader &);
   ~Lexer();
   Token peek();
   Token get();
@@ -43,10 +41,10 @@ public:
 };
 
 struct LexerFile {
-	uint32_t min;
-	uint32_t max;
-	InputSource& input;
-	Lexer& lexer;
+  uint32_t min;
+  uint32_t max;
+  IO::InputReader &input;
+  Lexer &lexer;
 };
 
 } // namespace Syntax

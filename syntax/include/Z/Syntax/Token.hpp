@@ -230,26 +230,19 @@ const std::unordered_map<TokenKind, std::string> TokenString = {
 };
 
 struct PosInfo {
-  uint32_t sline;
-  uint32_t eline;
-  uint32_t start;
-  uint32_t end;
-  uint32_t length;
-  std::optional<std::string_view> filepath;
+  std::size_t start;
+  std::size_t end;
 };
 
 struct Token {
   TokenKind kind;
   PosInfo position;
 
-  Token(TokenKind kind, uint32_t sline, uint32_t eline, uint32_t start,
-        uint32_t end, uint32_t length, const std::string filepath)
-      : kind(kind), position({.sline = sline,
-                              .eline = eline,
-                              .start = start,
-                              .end = end,
-                              .length = length,
-                              .filepath = filepath}) {}
+  Token(TokenKind kind, size_t start, size_t end)
+      : kind(kind), position({
+                        .start = start,
+                        .end = end,
+                    }) {}
 };
 }; // namespace Syntax
 }; // namespace Z
