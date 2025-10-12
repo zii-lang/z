@@ -11,7 +11,7 @@ struct CompilerContext {
   std::string host;
   std::string target;
   std::string version;
-  std::unordered_map<std::string, std::string> defines;
+  mutable std::unordered_map<std::string, std::string> defines = {};
 
   bool isDefined(const std::string &name) const noexcept {
 #if Z_CPP_STANDARD >= 20
@@ -39,9 +39,11 @@ struct CompilerContext {
   }
 
   void setDefine(const std::string &name,
-                 const std::string &value = "1") noexcept {
+                 const std::string &value = "1") const noexcept {
     defines[name] = value;
   }
+
+  CompilerContext() {}
 };
 
 }; // namespace Z::Compiler

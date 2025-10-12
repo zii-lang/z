@@ -27,7 +27,6 @@ private:
   std::size_t start = 0;
   std::size_t sline = 0;
 
-  void skip_trivia();
   void string_literal(uint32_t start);
   void identifier(uint32_t start);
 

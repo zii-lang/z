@@ -29,7 +29,32 @@ if(ENABLE_TESTS)
   enable_testing()
 endif()
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/ZConfig.hpp.in
+set(SRC_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
+set(BUILD_INCLUDE_DIR "${CMAKE_BINARY_DIR}/include/Z")
+file(MAKE_DIRECTORY ${BUILD_INCLUDE_DIR})
+file(
+  GLOB_RECURSE HEADER_FILES
+  RELATIVE ${SRC_INCLUDE_DIR}
+  "${SRC_INCLUDE_DIR}/*.hpp")
+
+foreach(file ${HEADER_FILES})
+  # Make sure the destination subdirectory exists
+  get_filename_component(dir "${file}" DIRECTORY)
+  file(MAKE_DIRECTORY "${BUILD_INCLUDE_DIR}/${dir}")
+
+  # Add custom command to copy file
+  add_custom_command(
+    OUTPUT "${BUILD_INCLUDE_DIR}/${file}"
+    COMMAND ${CMAKE_COMMAND} -E copy "${SRC_INCLUDE_DIR}/${file}"
+            "${BUILD_INCLUDE_DIR}/${file}"
+    DEPENDS "${SRC_INCLUDE_DIR}/${file}"
+    COMMENT "Copying ${file} to build include directory")
+  list(APPEND COPIED_FILES "${BUILD_INCLUDE_DIR}/${file}")
+endforeach()
+
+add_custom_target(copy_includes ALL DEPENDS ${COPIED_FILES})
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/ZConfig.hpp.in
                ${CMAKE_CURRENT_BINARY_DIR}/include/Z/ZConfig.hpp @ONLY)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)

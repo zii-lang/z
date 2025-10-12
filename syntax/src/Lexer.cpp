@@ -9,41 +9,7 @@ namespace Syntax {
 Lexer::Lexer(IO::InputReader &reader) : reader(reader) {}
 Lexer::~Lexer() {}
 
-void Lexer::skip_trivia() {
-  uint32_t current = 0;
-  while (!reader.eof()) {
-    current = reader.peek();
-    if (LexerUtil::is_whitespace(current) || LexerUtil::is_linefeed(current)) {
-      reader.get();
-      continue;
-    } else if (current == '/') {
-      current = reader.peek(1);
-      if (current == '/') {
-        reader.get();
-        reader.get();
-        while (!reader.eof() && !LexerUtil::is_linefeed(reader.get())) {
-        }
-        continue;
-      } else if (current == '*') {
-        reader.get();
-        while (!reader.eof()) {
-          if (reader.peek() == '*' && reader.peek(1) == '/') {
-            reader.get();
-            reader.get();
-            break;
-          }
-          reader.get();
-        }
-        continue;
-      }
-    } else {
-      break;
-    }
-  }
-}
-
 Token Lexer::get() {
-  this->skip_trivia();
   this->start = reader.pos();
 
   uint8_t ch = reader.get();

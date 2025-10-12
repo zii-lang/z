@@ -48,7 +48,7 @@ uint8_t StreamFileReader::get() noexcept {
   return static_cast<uint8_t>(c);
 }
 
-uint8_t StreamFileReader::peek(uint32_t n) noexcept {
+uint8_t StreamFileReader::peek(std::size_t n) const noexcept {
   if (!_in) {
     setError(InputError::NullInput);
     return 0;
@@ -75,6 +75,15 @@ uint8_t StreamFileReader::peek(uint32_t n) noexcept {
   _in->clear();
   _in->seekg(cur);
   return static_cast<uint8_t>(c);
+}
+
+void StreamFileReader::advance(std::size_t offset) const noexcept {
+  if (!_in) {
+    setError(InputError::NullInput);
+    return;
+  }
+
+  _in->seekg(offset, std::ios::cur);
 }
 
 bool StreamFileReader::eof() const noexcept {

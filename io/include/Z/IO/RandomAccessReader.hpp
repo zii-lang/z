@@ -11,6 +11,7 @@ public:
   virtual ~RandomAccessReader() = default;
   // Seeks to exact position given.
   virtual void seek(size_t) const noexcept = 0;
+	virtual void advance(std::size_t) const noexcept = 0;
   virtual std::size_t size() const noexcept = 0;
   virtual uint8_t at(size_t) const noexcept = 0;
 };

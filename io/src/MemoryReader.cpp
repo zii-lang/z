@@ -1,5 +1,4 @@
 #include <Z/IO.hpp>
-#include <algorithm>
 
 namespace Z::IO {
 
@@ -16,7 +15,7 @@ std::uint8_t MemoryReader::get() noexcept {
   return static_cast<std::uint8_t>(_buffer[_pos++]);
 }
 
-std::uint8_t MemoryReader::peek(std::uint32_t offset) noexcept {
+std::uint8_t MemoryReader::peek(std::size_t offset) const noexcept {
   std::size_t idx = _pos + offset;
   if (idx >= _buffer.size()) {
     this->setError(InputError::InvalidPeek);
@@ -33,6 +32,14 @@ void MemoryReader::seek(std::size_t pos) const noexcept {
   }
   const_cast<MemoryReader *>(this)->_pos =
       (pos > _buffer.size() ? _buffer.size() : pos);
+}
+
+void MemoryReader::advance(std::size_t offset) const noexcept {
+  if (offset + _pos > _buffer.size()) {
+    this->setError(InputError::InvalidRead);
+    return;
+  }
+  const_cast<MemoryReader *>(this)->_pos += offset;
 }
 
 std::size_t MemoryReader::size() const noexcept { return _buffer.size(); }

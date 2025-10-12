@@ -21,7 +21,8 @@ public:
   // --- InputReader Interface ---
   std::size_t pos() const noexcept override;
   std::uint8_t get() noexcept override;
-  std::uint8_t peek(std::uint32_t offset = 0) noexcept override;
+  std::uint8_t peek(std::size_t offset = 0) const noexcept override;
+  void advance(std::size_t offset = 1) const noexcept override;
   bool eof() const noexcept override;
   std::string get_name() const noexcept override { return _name; }
   void set_name(std::string) const noexcept;

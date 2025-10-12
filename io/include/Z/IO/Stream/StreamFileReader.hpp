@@ -22,7 +22,8 @@ public:
 
   size_t pos() const noexcept override;
   uint8_t get() noexcept override;
-  uint8_t peek(uint32_t n = 0) noexcept override;
+  uint8_t peek(std::size_t = 0) const noexcept override;
+  void advance(std::size_t = 0) const noexcept override;
   bool eof() const noexcept override;
   std::string get_name() const noexcept override { return _name; }
   void set_name(std::string) const noexcept;

@@ -4,7 +4,8 @@ project(
   LANGUAGES CXX)
 
 # Get header files as build dependencies.
-file(GLOB_RECURSE ZPP_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/Z/PP.hpp"
+file(GLOB_RECURSE ZPP_HEADERS
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/Z/Preprocessor.hpp"
      "${CMAKE_CURRENT_SOURCE_DIR}/include/Z/PP/**.hpp")
 
 # All sources inside src directory.

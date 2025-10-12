@@ -11,4 +11,12 @@
 
 #include <Z/IO/Stream/StreamFileReader.hpp>
 
+// ---- Writer interfaces ----
+
+#include <Z/IO/OutputWriter.hpp>
+
+#include <Z/IO/RandomAccessWriter.hpp>
+
+#include <Z/IO/RandomAccess/MemoryWriter.hpp>
+
 #endif

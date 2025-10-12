@@ -1,5 +1,5 @@
-#ifndef Z_IO_INPUT_SOURCE_HPP
-#define Z_IO_INPUT_SOURCE_HPP
+#ifndef Z_IO_INPUT_READER_HPP
+#define Z_IO_INPUT_READER_HPP
 
 #include <cstddef>
 #include <cstdint>
@@ -16,7 +16,7 @@ enum class InputError {
   StreamError = 0b10000,
   MemoryError = 0b100000,
   NullInput = 0b1000000,
-  UnknownError = 0b10000000,
+  Unknown = -1,
 };
 
 inline InputError operator&(InputError a, InputError b) {
@@ -46,7 +46,8 @@ public:
   virtual ~InputReader() = default;
   virtual size_t pos() const noexcept = 0;
   virtual std::uint8_t get() noexcept = 0;
-  virtual std::uint8_t peek(uint32_t = 0) noexcept = 0;
+  virtual std::uint8_t peek(std::size_t = 0) const noexcept = 0;
+  virtual void advance(std::size_t = 1) const noexcept = 0;
   virtual bool eof() const noexcept = 0;
   virtual std::string get_name() const noexcept = 0;
 
