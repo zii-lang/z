@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20.0)
 
 project(
-  z
+  Z
   VERSION "1.0.0"
   LANGUAGES CXX)
 
@@ -25,11 +25,16 @@ if(ENABLE_TESTS)
     )
     FetchContent_MakeAvailable(googletest)
   endif()
-	include(GoogleTest)
+  include(GoogleTest)
   enable_testing()
 endif()
 
-set(PROJECT_LIST "io" "syntax")
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/ZConfig.hpp.in
+               ${CMAKE_CURRENT_BINARY_DIR}/include/Z/ZConfig.hpp @ONLY)
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
+
+set(PROJECT_LIST "compiler" "io" "preprocessor" "syntax")
 
 foreach(project ${PROJECT_LIST})
   add_subdirectory(${project})

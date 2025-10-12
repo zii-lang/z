@@ -1,0 +1,10 @@
+#ifndef Z_CONFIG_HPP
+#define Z_CONFIG_HPP
+
+#define Z_CPP_STANDARD @CMAKE_CXX_STANDARD@
+
+namespace Z::Config {
+inline constexpr int CppStandard = Z_CPP_STANDARD;
+}
+
+#endif
