@@ -8,7 +8,7 @@ namespace Z::IO {
 
 StreamFileReader::StreamFileReader(const std::string &path) noexcept
     : _in(new std::ifstream(path, std::ios::binary)), _ownsStream(true) {
-
+  this->_name = path;
   auto *fin = static_cast<std::ifstream *>(_in);
 
   if (!fin->is_open()) {
@@ -117,4 +117,9 @@ StreamFileReader::toRandomAccess() noexcept {
 
   return std::make_unique<MemoryReader>(std::move(data));
 }
+
+void StreamFileReader::set_name(std::string name) const noexcept {
+  this->_name = std::move(name);
+}
+
 }; // namespace Z::IO

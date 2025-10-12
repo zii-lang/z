@@ -13,6 +13,7 @@ private:
   std::istream *_in;
   size_t _pos = 0;
   bool _ownsStream = false;
+  mutable std::string _name = ":stream_file:";
 
 public:
   explicit StreamFileReader(const std::string &path) noexcept;
@@ -23,6 +24,8 @@ public:
   uint8_t get() noexcept override;
   uint8_t peek(uint32_t n = 0) noexcept override;
   bool eof() const noexcept override;
+  std::string get_name() const noexcept override { return _name; }
+  void set_name(std::string) const noexcept;
 
   std::unique_ptr<RandomAccessReader> toRandomAccess() noexcept override;
 };

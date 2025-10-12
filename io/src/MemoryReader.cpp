@@ -1,4 +1,5 @@
 #include <Z/IO.hpp>
+#include <algorithm>
 
 namespace Z::IO {
 
@@ -43,6 +44,10 @@ std::uint8_t MemoryReader::at(std::size_t index) const noexcept {
   }
 
   return static_cast<std::uint8_t>(_buffer[index]);
+}
+
+void MemoryReader::set_name(std::string name) const noexcept {
+  this->_name = std::move(name);
 }
 
 }; // namespace Z::IO

@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
 
 namespace Z::IO {
 
@@ -47,6 +48,7 @@ public:
   virtual std::uint8_t get() noexcept = 0;
   virtual std::uint8_t peek(uint32_t = 0) noexcept = 0;
   virtual bool eof() const noexcept = 0;
+  virtual std::string get_name() const noexcept = 0;
 
   inline void setError(InputError flag) const { _flag |= flag; }
   inline bool hasError() const { return _flag != InputError::None; }
