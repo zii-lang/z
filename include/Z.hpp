@@ -6,7 +6,6 @@
 #include <string>
 
 namespace Z {
-using CCharPtr = const char *;
 namespace Util {
 
 class StringUtil {

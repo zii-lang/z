@@ -20,12 +20,12 @@ public:
   std::size_t pos() const noexcept override { return output.cur; }
 
   void put(std::uint8_t byte) noexcept override {
-    output.write(reinterpret_cast<CCharPtr>(&byte), 1);
+    output.write(reinterpret_cast<const char *>(&byte), 1);
     output.flush();
   }
 
   void write(const std::uint8_t *data, std::size_t size) noexcept override {
-    output.write(reinterpret_cast<CCharPtr>(data), size);
+    output.write(reinterpret_cast<const char *>(data), size);
     output.flush();
   }
 
@@ -38,7 +38,7 @@ public:
 
   MemoryReader toReader() {
     MemoryReader reader(output.str());
-		reader.seek(0);
+    reader.seek(0);
     return reader;
   }
 

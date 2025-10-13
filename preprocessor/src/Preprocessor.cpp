@@ -2,6 +2,7 @@
 #include <Z/IO.hpp>
 #include <Z/Preprocessor.hpp>
 #include <Z/Z.hpp>
+#include <iostream>
 #include <sstream>
 #include <unordered_map>
 
@@ -40,38 +41,29 @@ void Preprocessor::skip_trivial() const noexcept {
   }
 }
 
-void Preprocessor::handle_definition() const noexcept {
-  if (Util::CharUtil::is_whitespace(_reader.peek())) {
-    _reader.advance(1);
-  } else {
-    // FIX: WTF?
-  }
-
-  std::stringstream key;
-  std::stringstream value;
-  std::uint8_t c = 0;
+void Preprocessor::handle_definition(const std::string line) const noexcept {
+  std::string key;
+  std::string value;
   bool key_read = false;
-  while (!_reader.eof() || !Util::CharUtil::is_linefeed(c = _reader.peek())) {
-    if (!key_read) {
-      if (Util::CharUtil::is_whitespace(c)) {
-        key_read = true;
-      } else {
-        key.write(reinterpret_cast<CCharPtr>(c), 1);
-      }
-    } else {
-      value.write(reinterpret_cast<CCharPtr>(c), 1);
-    }
-    _reader.advance(1);
+  std::size_t pos = 0;
+
+  while (pos < line.size() && Util::CharUtil::is_alpha(line[pos])) {
+    pos++;
   }
 
-  const std::string trimed_key = Util::StringUtil::trim(key.str());
-  std::string trimed_value = Util::StringUtil::trim(value.str());
+  key = line.substr(0, pos);
+  value = line.substr(pos + 1, line.size() - pos + 1);
 
-  if (trimed_value.size() == 0) {
-    trimed_value = "1";
+  key = Util::StringUtil::trim(key);
+  value = Util::StringUtil::trim(value);
+
+  if (value.size() == 0) {
+    value = "1";
   }
 
-  _context.setDefine(trimed_key, trimed_value);
+  std::cout << "Key: " << key << "\n" << "Value: " << value << std::endl;
+
+  _context.setDefine(key, value);
 }
 
 Preprocessor::Preprocessor(const IO::InputReader &reader,
@@ -81,51 +73,9 @@ Preprocessor::Preprocessor(const IO::InputReader &reader,
 Preprocessor::~Preprocessor() {}
 
 const PreprocessedSource &Preprocessor::process() {
-  std::size_t preOffset = 0;
-  std::size_t rawOffset = 0;
 
-  while (!_reader.eof()) {
-
-    this->skip_trivial();
-
-    // A preprocessor directive.
-    if (this->_reader.peek() == '#') {
-      this->_reader.advance(1);
-      std::stringstream stream;
-      std::uint8_t c = 0;
-      while (!_reader.eof() ||
-             Util::CharUtil::is_alpha(c = this->_reader.peek())) {
-        stream.write(reinterpret_cast<CCharPtr>(&c), 1);
-        this->_reader.advance(1);
-      }
-
-      auto dir_search = this->directives.find(stream.str());
-      if (dir_search == directives.end()) {
-        // FIX: This should probably raise an error for strict preprocessor.
-      } else {
-        switch (dir_search->second) {
-        case DirectiveKind::Define:
-          handle_definition();
-          break;
-        default:
-          break;
-        }
-      }
-    } else {
-      std::stringstream stream;
-      std::uint8_t c = 0;
-      preOffset = _reader.pos();
-      rawOffset = _output.content.pos();
-      while (!_reader.eof() &&
-             !Util::CharUtil::is_whitespace(c = this->_reader.peek())) {
-        _reader.advance();
-        _output.content.put(c);
-      }
-      _output.mappings.push_back(
-          RangeMapping{.preStart = preOffset, .rawStart = rawOffset});
-    }
-  }
-
+  _output.content.seek(0);
+  _output.proccessed = true;
   return _output;
 }
 }; // namespace Z::PP

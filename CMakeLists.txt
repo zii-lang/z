@@ -59,7 +59,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/ZConfig.hpp.in
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 
-set(PROJECT_LIST "compiler" "io" "preprocessor" "syntax")
+set(PROJECT_LIST "compiler" "io" "preprocessor" "syntax" "internal_build")
 
 foreach(project ${PROJECT_LIST})
   add_subdirectory(${project})
