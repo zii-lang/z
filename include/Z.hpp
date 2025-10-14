@@ -8,6 +8,9 @@
 namespace Z {
 namespace Util {
 
+/**
+ * String help tool.
+ */
 class StringUtil {
 public:
   const static inline std::string trim(const std::string &s) {
@@ -43,6 +46,11 @@ public:
   /**
    * True for any kind of linefeed.
    */
+  const static inline bool is_linefeed(std::uint8_t code_point) {
+    return (code_point == 0x0A || // LF
+            code_point == 0x0D    // CR
+    );
+  }
   const static inline bool is_linefeed(std::uint32_t code_point) {
     return (code_point == 0x0A ||   // LF
             code_point == 0x0D ||   // CR
@@ -380,6 +388,46 @@ public:
            (0xff3f == code_point) || (0xff65 == code_point);
   }
 };
+
+class ScanUtil {
+public:
+  const static inline bool is_newline_seq(std::uint8_t first,
+                                          std::uint8_t second,
+                                          std::size_t *count = 0) noexcept {
+    if (first == '\r' && second == '\n') {
+      *count = 2;
+      return true;
+    }
+
+    if (CharUtil::is_linefeed(first)) {
+      *count = 1;
+      return true;
+    }
+
+    return false;
+  }
+  const static inline bool is_newline_seq(std::uint32_t first,
+                                          std::uint32_t second,
+                                          std::size_t *count = 0) noexcept {
+    if (first == '\r' && second == '\n') {
+      *count = 2;
+      return true;
+    }
+
+    if (CharUtil::is_linefeed(first)) {
+      *count = 1;
+      return true;
+    }
+
+    return false;
+  }
+
+  const static inline bool is_line_comment(std::uint8_t first,
+                                           std::uint8_t second) {
+    return first == '/' && first == second;
+  }
+};
+
 }; // namespace Util
 }; // namespace Z
 

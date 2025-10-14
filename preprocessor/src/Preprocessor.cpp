@@ -72,10 +72,18 @@ Preprocessor::Preprocessor(const IO::InputReader &reader,
 
 Preprocessor::~Preprocessor() {}
 
-const PreprocessedSource &Preprocessor::process() {
+const PreprocessedSource &Preprocessor::process() const noexcept {
+  std::uint8_t sbyte[1] = {0};
+  std::size_t raw = 0;
+  std::size_t reset = 0;
 
-  _output.content.seek(0);
-  _output.proccessed = true;
-  return _output;
-}
+
+  while (!_reader.eof()) {
+		// Line comment
+		if(Util::ScanUtil::
+	}
+    _output.content.seek(0);
+    _output.proccessed = true;
+    return _output;
+  }
 }; // namespace Z::PP

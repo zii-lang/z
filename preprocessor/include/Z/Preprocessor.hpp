@@ -10,17 +10,17 @@
 
 namespace Z::PP {
 
-struct RangeMapping {
-  std::size_t startPre, startRaw, endPre, endRaw;
-  RangeMapping(std::size_t startPre, std::size_t startRaw, std::size_t endPre,
-               std::size_t endRaw)
-      : startPre(startPre), startRaw(startRaw), endPre(endPre), endRaw(endRaw) {
-  }
+/**
+ * A map where raw position is actually the reset position in another source.
+ */
+struct ResetMap {
+  std::size_t raw, reset;
+  ResetMap(std::size_t raw, std::size_t reset) {}
 };
 
 struct PreprocessedSource {
   mutable IO::MemoryWriter content;
-  mutable std::vector<RangeMapping> mappings;
+  mutable std::vector<ResetMap> mappings;
   mutable bool proccessed = false;
 
   PreprocessedSource() : content(), mappings() {}
@@ -62,7 +62,7 @@ public:
                const Compiler::CompilerContext &context);
   ~Preprocessor();
 
-  const PreprocessedSource &process();
+  const PreprocessedSource &process() const noexcept;
 };
 }; // namespace Z::PP
 
